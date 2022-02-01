@@ -30,6 +30,7 @@ namespace GameCatalog
 
             services.AddTransient<IGameRepository, GameRepository>();
             services.AddTransient<IGenreRepository, GenreRepository>();
+            services.AddTransient<IUserRepository, UserRepository>();
             services.AddTransient<IUnitOfWork, UnitOfWork>();
 
         }

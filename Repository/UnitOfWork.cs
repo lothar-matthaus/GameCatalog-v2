@@ -6,11 +6,13 @@ namespace GameCatalog.Repository
     {
         public IGameRepository Game { get; }
         public IGenreRepository Genre { get; }
+        public IUserRepository User { get; }
 
-        public UnitOfWork(IGameRepository gameRepository, IGenreRepository genreRepository)
+        public UnitOfWork(IGameRepository gameRepository, IGenreRepository genreRepository, IUserRepository userRepository)
         {
             Game = gameRepository;
             Genre = genreRepository;
+            User = userRepository;
         }
     }
 }

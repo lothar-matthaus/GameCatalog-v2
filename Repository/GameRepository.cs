@@ -5,6 +5,7 @@ using Dapper;
 using GameCatalog.Data;
 using GameCatalog.Entity.Models;
 using GameCatalog.Repository.Interfaces;
+using Microsoft.Extensions.Configuration;
 
 namespace GameCatalog.Repository
 {
@@ -12,11 +13,11 @@ namespace GameCatalog.Repository
     {
         private IDbSession DbSession;
 
-        public GameRepository()
+        public GameRepository(IConfiguration configuration)
         {
             if (this.DbSession == null)
             {
-                this.DbSession = new DbSession();
+                this.DbSession = new DbSession(configuration["connectionStrings:GameDataBase"]);
             }
         }
 
@@ -39,10 +40,10 @@ namespace GameCatalog.Repository
                 },
                 splitOn: "GenreId");
 
-                IEnumerable<Game> result = gameList.GroupBy(p => p.GameId).Select(g =>
+                IEnumerable<Game> result = gameList.GroupBy(game => game.GameId).Select(g =>
                 {
-                    var groupedGameList = g.First();
-                    groupedGameList.Genre = g.Select(p => p.Genre.Single()).ToList();
+                    Game groupedGameList = g.First();
+                    groupedGameList.Genre = g.Select(game => game.Genre.Single()).ToList();
                     return groupedGameList;
                 });
 
@@ -56,7 +57,22 @@ namespace GameCatalog.Repository
 
         public Game Get(int id)
         {
-            throw new NotImplementedException();
+            string sqlCommand = "";
+
+            try
+            {
+                sqlCommand = "SELECT * FROM Game " +
+                             "WHERE [GameId] IN @GameId";
+
+                Game game = DbSession.Connection.QuerySingleOrDefault<Game>(sqlCommand, new { GameId = id });
+
+                return game;
+            }
+            catch (Exception)
+            {
+                DbSession.Rollback();
+                throw;
+            }
         }
 
         public int Remove(int id)
@@ -114,17 +130,63 @@ namespace GameCatalog.Repository
 
                 return gameId;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 DbSession.Rollback();
-                throw new Exception($"Erro ao salvar o título no sistema. {ex.Message}");
+                throw;
             }
 
         }
 
         public int Update(Game game)
         {
-            throw new NotImplementedException();
+            string sqlCommand = "";
+
+            try
+            {
+                sqlCommand = "UPDATE Game " +
+                             "SET [Title] = @Title, " +
+                                 "[Description] = @Description, " +
+                                 "[CoverUrl] = @CoverUrl, " +
+                                 "[ReleaseDate] = @ReleaseDate " +
+                             "WHERE [GameId] = @GameId";
+
+                DbSession.BeginTransaction();
+
+                int rows = DbSession.Connection.Execute(sqlCommand, game, DbSession.DbTransaction);
+
+                if (rows == 0)
+                    throw new Exception($"O ID '{game.GameId}' informado não foi encontrado na base de dados.");
+
+                sqlCommand = "DELETE FROM GameGenre " +
+                                "WHERE [GameId] = @GameId";
+
+                rows = DbSession.Connection.Execute(sqlCommand, new { GameId = game.GameId }, DbSession.DbTransaction);
+
+                if (rows == 0)
+                    throw new Exception($"O ID '{game.GameId}' informado não coincide com os gêneros.");
+
+
+                sqlCommand = "INSERT INTO GameGenre " +
+                             "([GameId], [GenreId]) " +
+                             "VALUES " +
+                             "(@GameId, @GenreId)";
+
+                foreach (Genre genre in game.Genre)
+                {
+                    DbSession.Connection.QueryFirstOrDefault(sqlCommand, new { GameId = game.GameId, GenreId = genre.GenreId }, DbSession.DbTransaction);
+                }
+
+                DbSession.Commit();
+
+                return game.GameId.Value;
+
+            }
+            catch (Exception)
+            {
+                DbSession.Rollback();
+                throw;
+            }
         }
     }
 }

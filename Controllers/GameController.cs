@@ -20,6 +20,43 @@ namespace GameCatalog.Controllers
             _unitOfWork = unitOfWork;
         }
 
+
+        [HttpPatch]
+        public IActionResult Patch(JsonUpdateGame jsonUpdateGame)
+        {
+            TryValidateModel(jsonUpdateGame);
+
+            try
+            {
+                Game game = new()
+                {
+                    GameId = jsonUpdateGame.GameId,
+                    Title = jsonUpdateGame.Title,
+                    CoverUrl = jsonUpdateGame.CoverUrl,
+                    Description = jsonUpdateGame.Description,
+                    Genre = _unitOfWork.Genre.Get(jsonUpdateGame.Genre).AsList()
+                };
+
+                _unitOfWork.Game.Update(game);
+
+                return Ok(new MessageSuccess
+                {
+                    Message = $"O jogo '{game.Title}' foi atualizado.",
+                    Id = game.GameId.Value,
+                    Success = true
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new MessageError
+                {
+                    Message = "Erro ao atualizar o jogo.",
+                    Success = false,
+                    ErrorMessage = ex.Message
+                });
+            }
+        }
+
         [HttpDelete]
         public IActionResult Delete(int id)
         {
@@ -66,7 +103,7 @@ namespace GameCatalog.Controllers
                 return Ok(new MessageSuccess
                 {
                     Success = true,
-                    Message = "O título foi cadastrado com sucesso.",
+                    Message = $"O título '{game.Title}' foi cadastrado com sucesso.",
                     Id = id
                 });
             }
@@ -88,21 +125,29 @@ namespace GameCatalog.Controllers
             {
                 gameList = _unitOfWork.Game.Get();
 
-                if (gameList == null)
+                if (gameList != null)
+                {
+                    return Ok(gameList);
+                }
+                else
                 {
                     return Ok(new MessageError
                     {
                         Success = true,
-                        Message = "Não foram encontrados nenhum título na base de dados."
+                        Message = "Não foram encontrados nenhum título na base de dados.",
+                        ErrorMessage = "Lista vazia."
                     });
                 }
             }
-            catch (System.Exception)
+            catch (Exception ex)
             {
-
-                throw;
+                return BadRequest(new MessageError
+                {
+                    Success = true,
+                    Message = "Erro ao coletar os jogos salvos no sistema.",
+                    ErrorMessage = ex.Message
+                });
             }
-            return Ok(gameList);
         }
     }
 }

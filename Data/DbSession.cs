@@ -2,6 +2,7 @@ using System;
 using System.Data;
 using System.Data.SQLite;
 using GameCatalog.Repository.Interfaces;
+using Microsoft.Extensions.Configuration;
 
 namespace GameCatalog.Data
 {
@@ -10,11 +11,11 @@ namespace GameCatalog.Data
         public IDbConnection Connection { get; }
         public IDbTransaction DbTransaction { get; set; }
 
-        public DbSession()
+        public DbSession(string connectionString)
         {
             try
             {
-                this.Connection = new SQLiteConnection("Data Source=./Data/DataBase/gamedb.sqlite; Version=3;");
+                this.Connection = new SQLiteConnection(connectionString);
 
                 if (Connection.State == ConnectionState.Closed)
                 {

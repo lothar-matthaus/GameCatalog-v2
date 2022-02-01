@@ -7,6 +7,7 @@ using Dapper;
 using GameCatalog.Data;
 using GameCatalog.Entity.Models;
 using GameCatalog.Repository.Interfaces;
+using Microsoft.Extensions.Configuration;
 
 namespace GameCatalog.Repository
 {
@@ -14,11 +15,11 @@ namespace GameCatalog.Repository
     {
         private IDbSession DbSession;
 
-        public GenreRepository()
+        public GenreRepository(IConfiguration configuration)
         {
             if (this.DbSession == null)
             {
-                this.DbSession = new DbSession();
+                this.DbSession = new DbSession(configuration["connectionStrings:GameDataBase"]);
             }
         }
         public IEnumerable<Genre> Get()
@@ -58,10 +59,10 @@ namespace GameCatalog.Repository
 
                 return genreList;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                DbSession.Dispose();
-                throw new Exception($"Erro ao coletar os gêneros no sistema. {ex.Message}"); ;
+                DbSession.Rollback();
+                throw;
             }
         }
 

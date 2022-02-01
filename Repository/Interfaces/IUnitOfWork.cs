@@ -4,5 +4,6 @@ namespace GameCatalog.Repository.Interfaces
     {
         public IGameRepository Game { get; }
         public IGenreRepository Genre { get; }
+        public IUserRepository User { get; }
     }
 }
