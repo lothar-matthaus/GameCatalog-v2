@@ -28,21 +28,15 @@ namespace GameCatalog
         {
 
             services.AddControllers();
-            services.AddSwaggerGen(c =>
+            services.AddSwaggerGen(swagger =>
             {
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = "GameCatalog", Version = "v1" });
+                swagger.SwaggerDoc("v1", new OpenApiInfo { Title = "GameCatalog", Version = "v1" });
             });
 
             services.AddTransient<IGameRepository, GameRepository>();
             services.AddTransient<IGenreRepository, GenreRepository>();
             services.AddTransient<IUserRepository, UserRepository>();
             services.AddTransient<IUnitOfWork, UnitOfWork>();
-
-            services.AddAuthentication(authenticationOptions =>
-            {
-                authenticationOptions.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                authenticationOptions.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-            });
 
             byte[] secret = Encoding.ASCII.GetBytes(Configuration["JWT:Secret"]);
             services.AddAuthentication(authenticationOptions =>
@@ -60,6 +54,10 @@ namespace GameCatalog
                     IssuerSigningKey = new SymmetricSecurityKey(secret),
                     ValidateIssuer = true,
                     ValidateAudience = true,
+                    ValidateLifetime = true,
+                    ValidIssuer = Configuration["JWT:Issuer"],
+					ValidAudience = Configuration["JWT:Audience"],
+                    
                 };
             });
         }
@@ -78,8 +76,9 @@ namespace GameCatalog
 
             app.UseRouting();
 
-            app.UseAuthorization();
-
+            app.UseAuthentication();   
+			app.UseAuthorization();
+             
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();

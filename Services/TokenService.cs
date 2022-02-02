@@ -2,9 +2,9 @@ using System;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using GameCatalog.Entity.Enum;
 using GameCatalog.Entity.Models;
 using GameCatalog.Services.Interfaces;
+using GameCatalogv2.Entity.Enum;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 
@@ -31,14 +31,13 @@ namespace GameCatalog.Services
             ClaimsIdentity claimsIdentities = new(
                 new Claim[]
                 {
-                    new Claim(ClaimTypes.Name, user.FullName),
-                    new Claim(ClaimTypes.Role, Enum.GetName(typeof(UserRole), user.UserRole)),
-                    new Claim(ClaimTypes.Email, user.Email),
+                    new Claim(ClaimTypes.Name, user.FullName.ToString()),
+                    new Claim(ClaimTypes.Role, user.UserRole.ToString())
                 }
             );
 
             SymmetricSecurityKey symmetricSecurityKey = new SymmetricSecurityKey(secret);
-            SigningCredentials signingCredentials = new SigningCredentials(symmetricSecurityKey, SecurityAlgorithms.HmacSha512Signature);
+            SigningCredentials signingCredentials = new SigningCredentials(symmetricSecurityKey, SecurityAlgorithms.HmacSha256Signature);
 
             SecurityTokenDescriptor tokenDescriptor = new SecurityTokenDescriptor();
 

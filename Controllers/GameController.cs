@@ -5,6 +5,7 @@ using GameCatalog.Entity.Json;
 using GameCatalog.Entity.Message;
 using GameCatalog.Entity.Models;
 using GameCatalog.Repository.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GameCatalog.Controllers
@@ -20,8 +21,8 @@ namespace GameCatalog.Controllers
             _unitOfWork = unitOfWork;
         }
 
-
         [HttpPatch]
+        [Authorize(Roles = "Admin")]
         public IActionResult Patch(JsonUpdateGame jsonUpdateGame)
         {
             TryValidateModel(jsonUpdateGame);
@@ -34,7 +35,7 @@ namespace GameCatalog.Controllers
                     Title = jsonUpdateGame.Title,
                     CoverUrl = jsonUpdateGame.CoverUrl,
                     Description = jsonUpdateGame.Description,
-                    Genre = _unitOfWork.Genre.Get(jsonUpdateGame.Genre).AsList()
+                    Genre = _unitOfWork.Genre.Get(jsonUpdateGame.Genres).AsList()
                 };
 
                 _unitOfWork.Game.Update(game);
@@ -42,7 +43,7 @@ namespace GameCatalog.Controllers
                 return Ok(new MessageSuccess
                 {
                     Message = $"O jogo '{game.Title}' foi atualizado.",
-                    Id = game.GameId.Value,
+                    Content = game,
                     Success = true
                 });
             }
@@ -57,7 +58,8 @@ namespace GameCatalog.Controllers
             }
         }
 
-        [HttpDelete]
+        [HttpDelete("{id}")]
+        [Authorize(Roles = "Admin")]
         public IActionResult Delete(int id)
         {
             try
@@ -67,7 +69,7 @@ namespace GameCatalog.Controllers
                 return Ok(new MessageSuccess
                 {
                     Message = $"O jogo de ID '{id}' foi deletado.",
-                    Id = id,
+                    Content = null,
                     Success = true
                 });
             }
@@ -83,6 +85,7 @@ namespace GameCatalog.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "Admin")]
         public IActionResult Post(JsonNewGame jsonNewGame)
         {
             TryValidateModel(jsonNewGame);
@@ -95,7 +98,7 @@ namespace GameCatalog.Controllers
                     Description = jsonNewGame.Description,
                     CoverUrl = jsonNewGame.CoverUrl,
                     ReleaseDate = jsonNewGame.ReleaseDate,
-                    Genre = _unitOfWork.Genre.Get(jsonNewGame.Genre).AsList<Genre>()
+                    Genre = _unitOfWork.Genre.Get(jsonNewGame.Genres).AsList<Genre>()
                 };
 
                 int id = _unitOfWork.Game.Save(game);
@@ -104,7 +107,7 @@ namespace GameCatalog.Controllers
                 {
                     Success = true,
                     Message = $"O título '{game.Title}' foi cadastrado com sucesso.",
-                    Id = id
+                    Content = game
                 });
             }
             catch (Exception ex)
@@ -136,6 +139,38 @@ namespace GameCatalog.Controllers
                         Success = true,
                         Message = "Não foram encontrados nenhum título na base de dados.",
                         ErrorMessage = "Lista vazia."
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new MessageError
+                {
+                    Success = true,
+                    Message = "Erro ao coletar os jogos salvos no sistema.",
+                    ErrorMessage = ex.Message
+                });
+            }
+        }
+
+        [HttpGet("{id}")]
+        public IActionResult Get(int id)
+        {
+            try
+            {
+                Game game = _unitOfWork.Game.Get(id);
+
+                if (game != null)
+                {
+                    return Ok(game);
+                }
+                else
+                {
+                    return Ok(new MessageError
+                    {
+                        Success = true,
+                        Message = "Não foi encontrado nenhum título.",
+                        ErrorMessage = "O ID informado não existe na base de dados."
                     });
                 }
             }

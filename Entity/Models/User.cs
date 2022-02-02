@@ -1,5 +1,5 @@
 using System;
-using GameCatalog.Entity.Enum;
+using GameCatalogv2.Entity.Enum;
 
 namespace GameCatalog.Entity.Models
 {
@@ -9,7 +9,7 @@ namespace GameCatalog.Entity.Models
         public string Email { get; set; }
         public string FullName { get; set; }
         public Login Login { get; set; }
-        public UserRole UserRole { get; set; }
+        public string UserRole { get; set; }
         public DateTime SignUpDate { get; set; }
     }
 }

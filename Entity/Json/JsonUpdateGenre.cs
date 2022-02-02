@@ -1,13 +1,10 @@
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Threading.Tasks;
+using System.Text.Json.Serialization;
 
-namespace GameCatalog.Entity.Json
-{
+namespace GameCatalog.Entity.Json {
     public class JsonUpdateGenre
     {
+        [JsonPropertyName("id")]
         [Required(ErrorMessage = "Para atualizar o gênero, é preciso informar o ID.")]
         public int GenreId { get; set; }
 

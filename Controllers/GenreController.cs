@@ -4,6 +4,7 @@ using GameCatalog.Entity.Json;
 using GameCatalog.Entity.Message;
 using GameCatalog.Entity.Models;
 using GameCatalog.Repository.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GameCatalog.Controllers
@@ -19,6 +20,7 @@ namespace GameCatalog.Controllers
         }
 
         [HttpPatch]
+        [Authorize(Roles = "Admin")]
         public IActionResult Patch(JsonUpdateGenre jsonUpdateGenre)
         {
             TryValidateModel(jsonUpdateGenre);
@@ -36,7 +38,7 @@ namespace GameCatalog.Controllers
                 return Ok(new MessageSuccess
                 {
                     Message = $"O gênero de ID '{genre.GenreId}' foi atualizado.",
-                    Id = genre.GenreId.Value,
+                    Content = genre,
                     Success = true
                 });
             }
@@ -50,8 +52,9 @@ namespace GameCatalog.Controllers
                 });
             }
         }
-
+        
         [HttpDelete]
+        [Authorize(Roles = "Admin")]
         public IActionResult Delete(int id)
         {
             try
@@ -61,7 +64,7 @@ namespace GameCatalog.Controllers
                 return Ok(new MessageSuccess
                 {
                     Message = $"O gênero de ID '{id}' foi deletado.",
-                    Id = id,
+                    Content = null,
                     Success = true
                 });
             }
@@ -77,6 +80,7 @@ namespace GameCatalog.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "Admin")]
         public IActionResult Post(JsonNewGenre jsonNewGenre)
         {
             if (ModelState.IsValid)
@@ -94,7 +98,7 @@ namespace GameCatalog.Controllers
                     {
                         Success = true,
                         Message = $"O gênero '{genre.Name}' foi salvo.",
-                        Id = genre.GenreId.Value
+                        Content = genre
                     });
                 }
                 catch (Exception ex)

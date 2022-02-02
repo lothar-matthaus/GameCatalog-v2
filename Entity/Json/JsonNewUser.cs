@@ -1,12 +1,7 @@
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Threading.Tasks;
-using GameCatalog.Entity.Enum;
+using GameCatalogv2.Entity.Enum;
 
-namespace GameCatalog.Entity.Json
-{
+namespace GameCatalog.Entity.Json {
     public class JsonNewUser
     {
         [Required(ErrorMessage = "O usuário precisa de um nome.")]

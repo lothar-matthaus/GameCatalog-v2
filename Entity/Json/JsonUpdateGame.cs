@@ -1,12 +1,14 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace GameCatalog.Entity.Json
 {
     public class JsonUpdateGame
     {
 
+        [JsonPropertyName("id")]
         [Required(ErrorMessage = "Para atualizar o jogo, é necessário informar o ID.")]
         public int GameId { get; set; }
 
@@ -29,6 +31,6 @@ namespace GameCatalog.Entity.Json
 
         [Required(ErrorMessage = "O jogo precisa um gênero.")]
         [MinLength(1, ErrorMessage = "O jogo precisa ter ao menos um gênero.")]
-        public ICollection<int> Genre { get; set; }
+        public ICollection<int> Genres { get; set; }
     }
 }

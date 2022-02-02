@@ -7,6 +7,6 @@ namespace GameCatalog.Entity.Message
 {
     public class MessageSuccess : BaseMessage
     {
-        public int Id { get; set; }
+        public object Content { get; set; }
     }
 }

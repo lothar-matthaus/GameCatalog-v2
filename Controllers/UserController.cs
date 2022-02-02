@@ -5,13 +5,15 @@ using GameCatalog.Entity.Models;
 using GameCatalog.Repository.Interfaces;
 using GameCatalog.Services;
 using GameCatalog.Services.Interfaces;
+using GameCatalogv2.Entity.Enum;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 
-namespace GameCatalog.Controllers
-{
+namespace GameCatalog.Controllers {
     [ApiController]
     [Route("api/[controller]")]
+    [AllowAnonymous]
     public class UserController : ControllerBase
     {
 
@@ -33,7 +35,7 @@ namespace GameCatalog.Controllers
             try
             {
                 User user = _unitOfWork.User.Get(jsonUserLogin.Email);
-
+                
                 if (user != null)
                 {
                     jsonUserLogin.Password = userService.Encrypt(user.Login.Salt, jsonUserLogin.Password, 256);
@@ -51,7 +53,7 @@ namespace GameCatalog.Controllers
                     {
                         return Ok(new MessageSuccess
                         {
-                            Id = 0,
+                            Content = jsonUserLogin,
                             Message = "Usuário ou senha inválidos.",
                             Success = true
                         });
@@ -92,7 +94,7 @@ namespace GameCatalog.Controllers
                 {
                     Email = jsonNewUser.Email,
                     FullName = jsonNewUser.FullName,
-                    UserRole = jsonNewUser.UserRole,
+                    UserRole = Enum.GetName(typeof(UserRole), jsonNewUser.UserRole),
                     Login = new Login
                     {
                         Email = jsonNewUser.Email,
@@ -107,7 +109,7 @@ namespace GameCatalog.Controllers
                 {
                     Success = true,
                     Message = $"O usuário '{user.FullName}' foi salvo.",
-                    Id = id
+                   Content = user
                 });
             }
             catch (Exception ex)

@@ -62,7 +62,7 @@ namespace GameCatalog.Repository
             try
             {
                 sqlCommand = "SELECT * FROM Game " +
-                             "WHERE [GameId] IN @GameId";
+                             "WHERE [GameId] = @GameId";
 
                 Game game = _dbSession.Connection.QuerySingleOrDefault<Game>(sqlCommand, new { GameId = id });
 
