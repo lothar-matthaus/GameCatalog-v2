@@ -11,13 +11,13 @@ namespace GameCatalog.Repository
 {
     public class GameRepository : IGameRepository
     {
-        private IDbSession DbSession;
+        private IDbSession _dbSession;
 
         public GameRepository(IConfiguration configuration)
         {
-            if (this.DbSession == null)
+            if (this._dbSession == null)
             {
-                this.DbSession = new DbSession(configuration["connectionStrings:GameDataBase"]);
+                this._dbSession = new DbSession(configuration["connectionStrings:GameDataBase"]);
             }
         }
 
@@ -31,12 +31,12 @@ namespace GameCatalog.Repository
 
             try
             {
-                IEnumerable<Game> gameList = DbSession.Connection.Query<Game, Genre, Game>(sqlCommand, (Game, Genre) =>
+                IEnumerable<Game> gameList = _dbSession.Connection.Query<Game, Genre, Game>(sqlCommand, (game, genre) =>
                 {
-                    Game.Genre = new List<Genre>();
-                    Game.Genre.Add(Genre);
+                    game.Genre = new List<Genre>();
+                    game.Genre.Add(genre);
 
-                    return Game;
+                    return game;
                 },
                 splitOn: "GenreId");
 
@@ -64,13 +64,13 @@ namespace GameCatalog.Repository
                 sqlCommand = "SELECT * FROM Game " +
                              "WHERE [GameId] IN @GameId";
 
-                Game game = DbSession.Connection.QuerySingleOrDefault<Game>(sqlCommand, new { GameId = id });
+                Game game = _dbSession.Connection.QuerySingleOrDefault<Game>(sqlCommand, new { GameId = id });
 
                 return game;
             }
             catch (Exception)
             {
-                DbSession.Rollback();
+                _dbSession.Rollback();
                 throw;
             }
         }
@@ -82,20 +82,20 @@ namespace GameCatalog.Repository
 
             try
             {
-                DbSession.BeginTransaction();
+                _dbSession.BeginTransaction();
 
-                int rows = DbSession.Connection.Execute(sqlCommand, new { GameId = id });
+                int rows = _dbSession.Connection.Execute(sqlCommand, new { GameId = id });
 
                 if (rows == 0)
                     throw new Exception($"O ID '{id}' informado não foi encontrado na base de dados.");
 
-                DbSession.Commit();
+                _dbSession.Commit();
 
                 return rows;
             }
             catch (Exception)
             {
-                DbSession.Rollback();
+                _dbSession.Rollback();
                 throw;
             }
         }
@@ -106,7 +106,7 @@ namespace GameCatalog.Repository
 
             try
             {
-                DbSession.BeginTransaction();
+                _dbSession.BeginTransaction();
 
                 sqlCommand = "INSERT INTO Game" +
                              "([Title], [Description], [CoverUrl], [ReleaseDate])" +
@@ -114,7 +114,7 @@ namespace GameCatalog.Repository
                              "(@Title, @Description, @CoverUrl, @ReleaseDate)" +
                              "RETURNING [GameId];";
 
-                int gameId = DbSession.Connection.QuerySingleOrDefault<int>(sqlCommand, game, DbSession.DbTransaction);
+                int gameId = _dbSession.Connection.QuerySingleOrDefault<int>(sqlCommand, game, _dbSession.DbTransaction);
 
                 sqlCommand = "INSERT INTO GameGenre" +
                              "([GameId], [GenreId])" +
@@ -123,16 +123,16 @@ namespace GameCatalog.Repository
 
                 foreach (Genre genre in game.Genre)
                 {
-                    DbSession.Connection.QuerySingleOrDefault(sqlCommand, new { GameId = gameId, GenreId = genre.GenreId }, DbSession.DbTransaction);
+                    _dbSession.Connection.QuerySingleOrDefault(sqlCommand, new { GameId = gameId, GenreId = genre.GenreId }, _dbSession.DbTransaction);
                 }
 
-                DbSession.Commit();
+                _dbSession.Commit();
 
                 return gameId;
             }
             catch (Exception)
             {
-                DbSession.Rollback();
+                _dbSession.Rollback();
                 throw;
             }
 
@@ -151,9 +151,9 @@ namespace GameCatalog.Repository
                                  "[ReleaseDate] = @ReleaseDate " +
                              "WHERE [GameId] = @GameId";
 
-                DbSession.BeginTransaction();
+                _dbSession.BeginTransaction();
 
-                int rows = DbSession.Connection.Execute(sqlCommand, game, DbSession.DbTransaction);
+                int rows = _dbSession.Connection.Execute(sqlCommand, game, _dbSession.DbTransaction);
 
                 if (rows == 0)
                     throw new Exception($"O ID '{game.GameId}' informado não foi encontrado na base de dados.");
@@ -161,7 +161,7 @@ namespace GameCatalog.Repository
                 sqlCommand = "DELETE FROM GameGenre " +
                                 "WHERE [GameId] = @GameId";
 
-                rows = DbSession.Connection.Execute(sqlCommand, new { GameId = game.GameId }, DbSession.DbTransaction);
+                rows = _dbSession.Connection.Execute(sqlCommand, new { GameId = game.GameId }, _dbSession.DbTransaction);
 
                 if (rows == 0)
                     throw new Exception($"O ID '{game.GameId}' informado não coincide com os gêneros.");
@@ -174,17 +174,17 @@ namespace GameCatalog.Repository
 
                 foreach (Genre genre in game.Genre)
                 {
-                    DbSession.Connection.QueryFirstOrDefault(sqlCommand, new { GameId = game.GameId, GenreId = genre.GenreId }, DbSession.DbTransaction);
+                    _dbSession.Connection.QueryFirstOrDefault(sqlCommand, new { GameId = game.GameId, GenreId = genre.GenreId }, _dbSession.DbTransaction);
                 }
 
-                DbSession.Commit();
+                _dbSession.Commit();
 
                 return game.GameId.Value;
 
             }
             catch (Exception)
             {
-                DbSession.Rollback();
+                _dbSession.Rollback();
                 throw;
             }
         }

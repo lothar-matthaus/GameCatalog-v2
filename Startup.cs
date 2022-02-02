@@ -1,10 +1,15 @@
+using System.Text;
 using GameCatalog.Repository;
 using GameCatalog.Repository.Interfaces;
+using GameCatalog.Services;
+using GameCatalog.Services.Interfaces;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 
 namespace GameCatalog
@@ -33,6 +38,30 @@ namespace GameCatalog
             services.AddTransient<IUserRepository, UserRepository>();
             services.AddTransient<IUnitOfWork, UnitOfWork>();
 
+            services.AddAuthentication(authenticationOptions =>
+            {
+                authenticationOptions.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                authenticationOptions.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            });
+
+            byte[] secret = Encoding.ASCII.GetBytes(Configuration["JWT:Secret"]);
+            services.AddAuthentication(authenticationOptions =>
+            {
+                authenticationOptions.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                authenticationOptions.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
+            .AddJwtBearer(authenticationOptions =>
+            {
+                authenticationOptions.RequireHttpsMetadata = false;
+                authenticationOptions.SaveToken = true;
+                authenticationOptions.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(secret),
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                };
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -55,6 +84,8 @@ namespace GameCatalog
             {
                 endpoints.MapControllers();
             });
+
+            
         }
     }
 }

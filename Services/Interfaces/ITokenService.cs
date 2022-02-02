@@ -4,10 +4,10 @@ using System.Linq;
 using System.Threading.Tasks;
 using GameCatalog.Entity.Models;
 
-namespace GameCatalog.Repository.Interfaces
+namespace GameCatalog.Services.Interfaces
 {
-    public interface IUserRepository : IRepository<User>
+    public interface ITokenService
     {
-        User Get(string email);
+        string Generate(User user);
     }
 }

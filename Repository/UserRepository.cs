@@ -1,5 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.Data;
+using System.Data.SQLite;
+using System.Linq;
 using Dapper;
 using GameCatalog.Data;
 using GameCatalog.Entity.Models;
@@ -10,13 +13,13 @@ namespace GameCatalog.Repository
 {
     public class UserRepository : IUserRepository
     {
-        private IDbSession DbSession;
+        private IDbSession _dbSession;
 
         public UserRepository(IConfiguration configuration)
         {
-            if (this.DbSession == null)
+            if (this._dbSession == null)
             {
-                this.DbSession = new DbSession(configuration["connectionStrings:UserDataBase"]);
+                this._dbSession = new DbSession(configuration["connectionStrings:UserDataBase"]);
             }
         }
         public IEnumerable<User> Get()
@@ -29,36 +32,36 @@ namespace GameCatalog.Repository
             throw new NotImplementedException();
         }
 
-        public int Remove(int id)
-        {
-            throw new NotImplementedException();
-        }
-
-        public int Save(Login login)
+        public User Get(string email)
         {
             string sqlCommand = "";
 
             try
             {
-                DbSession.BeginTransaction();
+                sqlCommand = "SELECT * FROM [User] AS [U] " +
+                    "INNER JOIN [Login] AS [L] " +
+                        "ON [U].[UserId] = [L].UserId " +
+                    $"WHERE [U].[Email] = @Email";
 
-                sqlCommand = "INSERT INTO Login" +
-                             "([Email], [Password], [Salt])" +
-                             "VALUES" +
-                             "(@Email, @Password, @Salt) " +
-                             "RETURNING [LoginId]";
+                User user = _dbSession.Connection.Query<User, Login, User>(sqlCommand, (user, login) =>
+                  {
+                      user.Login = login;
 
-                int loginId = DbSession.Connection.QuerySingle<int>(sqlCommand, login, DbSession.DbTransaction);
+                      return user;
+                  },
+                 splitOn: "UserId", param: new { Email = email }).FirstOrDefault<User>();
 
-                DbSession.Commit();
-
-                return loginId;
+                return user;
             }
             catch (Exception)
             {
-                DbSession.Rollback();
                 throw;
             }
+        }
+
+        public int Remove(int id)
+        {
+            throw new NotImplementedException();
         }
 
         public int Save(User user)
@@ -67,7 +70,7 @@ namespace GameCatalog.Repository
 
             try
             {
-                DbSession.BeginTransaction();
+                _dbSession.BeginTransaction();
 
                 sqlCommand = "INSERT INTO User" +
                              "([Email], [FullName], [UserRole])" +
@@ -75,15 +78,29 @@ namespace GameCatalog.Repository
                              "(@Email, @FullName, @UserRole) " +
                              "RETURNING [UserId]";
 
-                int userId = DbSession.Connection.QuerySingle<int>(sqlCommand, user, DbSession.DbTransaction);
+                int userId = _dbSession.Connection.QuerySingle<int>(sqlCommand, user, _dbSession.DbTransaction);
 
-                DbSession.Commit();
+                sqlCommand = "INSERT INTO Login" +
+                             "([UserId], [Email], [Password], [Salt])" +
+                             "VALUES" +
+                             "(@UserId, @Email, @Password, @Salt) ";
+
+                DynamicParameters parameters = new DynamicParameters();
+
+                parameters.Add("UserId", userId, DbType.Int32, ParameterDirection.Input);
+                parameters.Add("Email", user.Login.Email, DbType.String, ParameterDirection.Input);
+                parameters.Add("Password", user.Login.Password, DbType.String, ParameterDirection.Input);
+                parameters.Add("Salt", user.Login.Salt, DbType.String, ParameterDirection.Input);
+
+                _dbSession.Connection.QuerySingleOrDefault(sqlCommand, parameters, _dbSession.DbTransaction);
+
+                _dbSession.Commit();
 
                 return userId;
             }
             catch (Exception)
             {
-                DbSession.Rollback();
+                _dbSession.Rollback();
                 throw;
             }
         }

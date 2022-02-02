@@ -4,7 +4,9 @@ using GameCatalog.Entity.Message;
 using GameCatalog.Entity.Models;
 using GameCatalog.Repository.Interfaces;
 using GameCatalog.Services;
+using GameCatalog.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 
 namespace GameCatalog.Controllers
 {
@@ -14,18 +16,68 @@ namespace GameCatalog.Controllers
     {
 
         private readonly IUnitOfWork _unitOfWork;
-        public UserController(IUnitOfWork unitOfWork)
+        private readonly IConfiguration _configuration;
+
+        public UserController(IUnitOfWork unitOfWork, IConfiguration configuration)
         {
             _unitOfWork = unitOfWork;
+            _configuration = configuration;
         }
 
         [HttpPost("Login")]
-        public IActionResult Post(Login login)
+        public IActionResult Post(JsonUserLogin jsonUserLogin)
         {
-            UserService userService = new UserService();
+            IUserService userService = new UserService();
+            ITokenService tokenService = new TokenService(_configuration);
 
-            return Ok(null);
+            try
+            {
+                User user = _unitOfWork.User.Get(jsonUserLogin.Email);
+
+                if (user != null)
+                {
+                    jsonUserLogin.Password = userService.Encrypt(user.Login.Salt, jsonUserLogin.Password, 256);
+
+                    if (jsonUserLogin.Email.Equals(user.Email) && jsonUserLogin.Password.Equals(user.Login.Password))
+                    {
+                        return Ok(new TokenMessage
+                        {
+                            Message = "Logado no sistema no sistema.",
+                            Success = true,
+                            Token = tokenService.Generate(user)
+                        });
+                    }
+                    else
+                    {
+                        return Ok(new MessageSuccess
+                        {
+                            Id = 0,
+                            Message = "Usuário ou senha inválidos.",
+                            Success = true
+                        });
+                    }
+                }
+                else
+                {
+                    return Ok(new MessageSuccess
+                    {
+                        Message = "Usuário não cadastrado no sistema.",
+                        Success = true
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                return Ok(new MessageError
+                {
+                    Message = "Erro ao fazer o login no sistema.",
+                    Success = false,
+                    ErrorMessage = ex.Message
+                });
+            }
+
         }
+
         [HttpPost]
         public IActionResult Post(JsonNewUser jsonNewUser)
         {
@@ -40,19 +92,16 @@ namespace GameCatalog.Controllers
                 {
                     Email = jsonNewUser.Email,
                     FullName = jsonNewUser.FullName,
-                    UserRole = jsonNewUser.UserRole
+                    UserRole = jsonNewUser.UserRole,
+                    Login = new Login
+                    {
+                        Email = jsonNewUser.Email,
+                        Password = jsonNewUser.Password,
+                        Salt = saltHashed
+                    }
                 };
 
                 int id = _unitOfWork.User.Save(user);
-
-                Login login = new Login
-                {
-                    Email = jsonNewUser.Email,
-                    Password = jsonNewUser.Password,
-                    Salt = saltHashed
-                };
-
-                _unitOfWork.User.Save(login);
 
                 return Ok(new MessageSuccess
                 {

@@ -8,6 +8,7 @@ namespace GameCatalog.Entity.Models
         public int? UserId { get; set; }
         public string Email { get; set; }
         public string FullName { get; set; }
+        public Login Login { get; set; }
         public UserRole UserRole { get; set; }
         public DateTime SignUpDate { get; set; }
     }
