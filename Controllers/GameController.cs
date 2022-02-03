@@ -29,13 +29,20 @@ namespace GameCatalog.Controllers
 
             try
             {
+                List<Genre> genres = new List<Genre>();
+
+                foreach (int genreId in jsonUpdateGame.Genres)
+                {
+                    genres.Add(new Genre { GenreId = genreId });
+                }
+
                 Game game = new()
                 {
                     GameId = jsonUpdateGame.GameId,
                     Title = jsonUpdateGame.Title,
                     CoverUrl = jsonUpdateGame.CoverUrl,
                     Description = jsonUpdateGame.Description,
-                    Genre = _unitOfWork.Genre.Get(jsonUpdateGame.Genres).AsList()
+                    Genre = genres
                 };
 
                 _unitOfWork.Game.Update(game);
@@ -43,7 +50,7 @@ namespace GameCatalog.Controllers
                 return Ok(new MessageSuccess
                 {
                     Message = $"O jogo '{game.Title}' foi atualizado.",
-                    Content = game,
+                    Content = null,
                     Success = true
                 });
             }
@@ -92,14 +99,22 @@ namespace GameCatalog.Controllers
 
             try
             {
+                List<Genre> genres = new List<Genre>();
+
+                foreach (int genreId in jsonNewGame.Genres)
+                {
+                    genres.Add(new Genre { GenreId = genreId });
+                }
+
                 Game game = new Game
                 {
                     Title = jsonNewGame.Title,
                     Description = jsonNewGame.Description,
                     CoverUrl = jsonNewGame.CoverUrl,
                     ReleaseDate = jsonNewGame.ReleaseDate,
-                    Genre = _unitOfWork.Genre.Get(jsonNewGame.Genres).AsList<Genre>()
+                    Genre = genres
                 };
+
 
                 int id = _unitOfWork.Game.Save(game);
 
@@ -107,7 +122,7 @@ namespace GameCatalog.Controllers
                 {
                     Success = true,
                     Message = $"O título '{game.Title}' foi cadastrado com sucesso.",
-                    Content = game
+                    Content = null
                 });
             }
             catch (Exception ex)

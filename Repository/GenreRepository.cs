@@ -43,7 +43,22 @@ namespace GameCatalog.Repository
 
         public Genre Get(int id)
         {
-            throw new NotImplementedException();
+            string sqlCommand = "";
+
+            try
+            {
+                sqlCommand = "SELECT * FROM Genre " +
+                             "WHERE [GenreId] = @GenreId";
+
+                Genre genre = _dbSession.Connection.QuerySingleOrDefault<Genre>(sqlCommand, new { GenreId = id });
+
+                return genre;
+            }
+            catch (Exception)
+            {
+                _dbSession.Rollback();
+                throw;
+            }
         }
 
         public IEnumerable<Genre> Get(ICollection<int> genre)
@@ -115,6 +130,34 @@ namespace GameCatalog.Repository
                 _dbSession.Rollback();
                 _dbSession.Dispose();
 
+                throw;
+            }
+        }
+
+        public IEnumerable<Genre> Save(ICollection<Genre> genres)
+        {
+            string sqlCommand = "INSERT INTO Genre " +
+                                "([Name])" +
+                                "VALUES" +
+                                "(@Name) " +
+                                "RETURNING GenreId";
+
+            try
+            {
+                _dbSession.BeginTransaction();
+                
+                genres.AsList<Genre>().ForEach(genre =>
+                {
+                    _dbSession.Connection.QuerySingleOrDefault<int>(sqlCommand, genre);
+                });
+
+                _dbSession.Commit();
+
+                return null;
+            }
+            catch (Exception)
+            {
+                _dbSession.Rollback();
                 throw;
             }
         }

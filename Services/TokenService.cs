@@ -32,7 +32,9 @@ namespace GameCatalog.Services
                 new Claim[]
                 {
                     new Claim(ClaimTypes.Name, user.FullName.ToString()),
-                    new Claim(ClaimTypes.Role, user.UserRole.ToString())
+                    new Claim(ClaimTypes.Role, user.UserRole.ToString()),
+                    new Claim(ClaimTypes.Email, user.Email.ToString()),
+                    new Claim(ClaimTypes.PrimarySid, user.UserId.ToString())
                 }
             );
 

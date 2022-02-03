@@ -52,7 +52,7 @@ namespace GameCatalog.Controllers
                 });
             }
         }
-        
+
         [HttpDelete]
         [Authorize(Roles = "Admin")]
         public IActionResult Delete(int id)
@@ -120,6 +120,50 @@ namespace GameCatalog.Controllers
             }
         }
 
+        [HttpPost("New/List")]
+        [Authorize(Roles = "Admin")]
+        public IActionResult Post(ICollection<JsonNewGenre> jsonNewGenreList)
+        {
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    List<Genre> genreList = new List<Genre>();
+
+                    foreach (JsonNewGenre genre in jsonNewGenreList)
+                    {
+                        genreList.Add(new Genre { Name = genre.Name });
+                    }
+
+                    _unitOfWork.Genre.Save(genreList);
+
+                    return Ok(new MessageSuccess
+                    {
+                        Success = true,
+                        Message = $"Os gêneros inseridos foram salvos com sucesso!",
+                        Content = genreList
+                    });
+                }
+                catch (Exception ex)
+                {
+                    return BadRequest(new MessageError
+                    {
+                        Message = "Não foi possível salvar os gêneros.",
+                        ErrorMessage = ex.Message
+                    });
+                }
+            }
+            else
+            {
+                return BadRequest(new MessageError
+                {
+                    Message = "Os dados inseridos estão incorretos.",
+                    ErrorMessage = ModelState.Count.ToString()
+                });
+            }
+        }
+
+
         [HttpGet]
         public IActionResult Get()
         {
@@ -136,6 +180,76 @@ namespace GameCatalog.Controllers
                     Success = false,
                     Message = "Não foi possível carregar a lista de gêneros.",
                     Error = ex.Message
+                });
+            }
+        }
+
+        [HttpGet("{id}")]
+        public IActionResult Get(int id)
+        {
+            try
+            {
+                Genre genre = _unitOfWork.Genre.Get(id);
+
+                if (genre == null)
+                {
+                    return Ok(new MessageSuccess
+                    {
+                        Success = true,
+                        Message = $"Não foi encontrado um gênero com o Id '{id}' informado.",
+                        Content = genre
+                    });
+                }
+
+                return Ok(new MessageSuccess
+                {
+                    Success = true,
+                    Message = $"Foi encontrado um gênero com o ID '{id}' informado.",
+                    Content = genre
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new
+                {
+                    Success = false,
+                    Message = "Não foi possível carregar a lista de gêneros.",
+                    Error = ex.Message
+                });
+            }
+        }
+
+        [HttpPost("List")]
+        public IActionResult Get(ICollection<int> ids)
+        {
+            try
+            {
+                IEnumerable<Genre> genreList = _unitOfWork.Genre.Get(ids);
+
+                if (genreList == null)
+                {
+                    return Ok(new MessageSuccess
+                    {
+                        Success = true,
+                        Message = "Não foi encontrado nenhum gênero.",
+                        Content = null
+                    });
+                }
+
+                return Ok(new MessageSuccess
+                {
+                    Success = true,
+                    Message = "Foram encontrados os seguintes títulos...",
+                    Content = genreList
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new MessageError
+                {
+                    Success = false,
+                    Message = "Não foi possível carregar a lista de gêneros.",
+                    ErrorMessage = ex.Message
                 });
             }
         }

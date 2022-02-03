@@ -8,6 +8,7 @@ namespace GameCatalog.Repository.Interfaces
 {
     public interface IGenreRepository : IRepository<Genre>
     {
-        IEnumerable<Genre> Get(ICollection<int> genre);
+        IEnumerable<Genre> Get(ICollection<int> genres);
+        IEnumerable<Genre> Save(ICollection<Genre> genres);
     }
 }

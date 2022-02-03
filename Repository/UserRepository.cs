@@ -105,9 +105,35 @@ namespace GameCatalog.Repository
             }
         }
 
-        public int Update(User entity)
+        public int Update(User user)
         {
-            throw new NotImplementedException();
+            string sqlCommand = "";
+
+            try
+            {
+                sqlCommand = "UPDATE User " +
+                             "SET [Email] = @Email, [FullName] = @FullName, [UserRole] = @UserRole " +
+                             "WHERE [UserId] = @UserId";
+
+                _dbSession.BeginTransaction();
+
+                _dbSession.Connection.Query(sqlCommand, user, _dbSession.DbTransaction);
+
+                sqlCommand = "UPDATE Login " +
+                             "SET [Email] = @Email, [Password] = @Password, [Salt] = @Salt " +
+                             "WHERE [UserId] = @UserId";
+
+                _dbSession.Connection.Query(sqlCommand, user.Login, _dbSession.DbTransaction);
+
+                _dbSession.Commit();
+                
+                return user.UserId.Value;
+            }
+            catch (Exception)
+            {
+                _dbSession.Rollback();
+                throw;
+            }
         }
     }
 }
