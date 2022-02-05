@@ -5,8 +5,9 @@ using System.Threading.Tasks;
 
 namespace GameCatalog.Entity.Message
 {
-    public class MessageSuccess : BaseMessage
+    public class APIMessage
     {
-        public object Content { get; set; }
+        public bool Success { get; set; }
+        public string Message { get; set; }
     }
 }

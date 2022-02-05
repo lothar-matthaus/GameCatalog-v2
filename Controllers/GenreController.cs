@@ -35,24 +35,22 @@ namespace GameCatalog.Controllers
 
                 _unitOfWork.Genre.Update(genre);
 
-                return Ok(new MessageSuccess
+                return Ok(new APIMessage
                 {
                     Message = $"O gênero de ID '{genre.GenreId}' foi atualizado.",
-                    Content = genre,
                     Success = true
                 });
             }
             catch (Exception ex)
             {
-                return BadRequest(new MessageError
+                return BadRequest(new APIMessage
                 {
-                    Message = "Erro ao atualizar o gênero.",
-                    Success = false,
-                    ErrorMessage = ex.Message
+                    Message = $"Erro ao atualizar o gênero. {ex.Message}",
+                    Success = false
                 });
             }
         }
-
+        
         [HttpDelete]
         [Authorize(Roles = "Admin")]
         public IActionResult Delete(int id)
@@ -61,20 +59,18 @@ namespace GameCatalog.Controllers
             {
                 _unitOfWork.Genre.Remove(id);
 
-                return Ok(new MessageSuccess
+                return Ok(new APIMessage
                 {
                     Message = $"O gênero de ID '{id}' foi deletado.",
-                    Content = null,
                     Success = true
                 });
             }
             catch (Exception ex)
             {
-                return BadRequest(new MessageError
+                return BadRequest(new APIMessage
                 {
-                    Message = "Erro ao deletar o gênero.",
-                    Success = false,
-                    ErrorMessage = ex.Message
+                    Message = $"Erro ao deletar o gênero. {ex.Message}",
+                    Success = false
                 });
             }
         }
@@ -94,28 +90,27 @@ namespace GameCatalog.Controllers
 
                     genre.GenreId = _unitOfWork.Genre.Save(genre);
 
-                    return Ok(new MessageSuccess
+                    return Ok(new APIMessage
                     {
                         Success = true,
-                        Message = $"O gênero '{genre.Name}' foi salvo.",
-                        Content = genre
+                        Message = $"O gênero '{genre.Name}' foi salvo."
                     });
                 }
                 catch (Exception ex)
                 {
-                    return BadRequest(new MessageError
+                    return BadRequest(new APIMessage
                     {
-                        Message = "Não foi possível salvar o gênero.",
-                        ErrorMessage = ex.Message
+                        Success = false,
+                        Message = $"Não foi possível salvar o gênero. {ex.Message}",
                     });
                 }
             }
             else
             {
-                return BadRequest(new MessageError
+                return BadRequest(new APIMessage
                 {
+                    Success = false,
                     Message = "Os dados inseridos estão incorretos.",
-                    ErrorMessage = ModelState.Count.ToString()
                 });
             }
         }
@@ -137,28 +132,27 @@ namespace GameCatalog.Controllers
 
                     _unitOfWork.Genre.Save(genreList);
 
-                    return Ok(new MessageSuccess
+                    return Ok(new APIMessage
                     {
                         Success = true,
-                        Message = $"Os gêneros inseridos foram salvos com sucesso!",
-                        Content = genreList
+                        Message = $"Os gêneros inseridos foram salvos com sucesso!"
                     });
                 }
                 catch (Exception ex)
                 {
-                    return BadRequest(new MessageError
+                    return BadRequest(new APIMessage
                     {
-                        Message = "Não foi possível salvar os gêneros.",
-                        ErrorMessage = ex.Message
+                        Success = false,
+                        Message = $"Não foi possível salvar os gêneros. {ex.Message}",
                     });
                 }
             }
             else
             {
-                return BadRequest(new MessageError
+                return BadRequest(new APIMessage
                 {
+                    Success = false,
                     Message = "Os dados inseridos estão incorretos.",
-                    ErrorMessage = ModelState.Count.ToString()
                 });
             }
         }
@@ -193,20 +187,14 @@ namespace GameCatalog.Controllers
 
                 if (genre == null)
                 {
-                    return Ok(new MessageSuccess
+                    return Ok(new APIMessage
                     {
                         Success = true,
-                        Message = $"Não foi encontrado um gênero com o Id '{id}' informado.",
-                        Content = genre
+                        Message = $"Não foi encontrado um gênero com o Id '{id}' informado."
                     });
                 }
 
-                return Ok(new MessageSuccess
-                {
-                    Success = true,
-                    Message = $"Foi encontrado um gênero com o ID '{id}' informado.",
-                    Content = genre
-                });
+                return Ok(genre);
             }
             catch (Exception ex)
             {
@@ -228,28 +216,21 @@ namespace GameCatalog.Controllers
 
                 if (genreList == null)
                 {
-                    return Ok(new MessageSuccess
+                    return Ok(new APIMessage
                     {
-                        Success = true,
+                        Success = false,
                         Message = "Não foi encontrado nenhum gênero.",
-                        Content = null
                     });
                 }
 
-                return Ok(new MessageSuccess
-                {
-                    Success = true,
-                    Message = "Foram encontrados os seguintes títulos...",
-                    Content = genreList
-                });
+                return Ok(genreList);
             }
             catch (Exception ex)
             {
-                return BadRequest(new MessageError
+                return BadRequest(new APIMessage
                 {
                     Success = false,
-                    Message = "Não foi possível carregar a lista de gêneros.",
-                    ErrorMessage = ex.Message
+                    Message = $"Não foi possível carregar a lista de gêneros. {ex.Message}"
                 });
             }
         }

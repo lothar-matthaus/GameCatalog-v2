@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using Dapper;
 using GameCatalog.Entity.Json;
 using GameCatalog.Entity.Message;
 using GameCatalog.Entity.Models;
@@ -47,20 +46,14 @@ namespace GameCatalog.Controllers
 
                 _unitOfWork.Game.Update(game);
 
-                return Ok(new MessageSuccess
-                {
-                    Message = $"O jogo '{game.Title}' foi atualizado.",
-                    Content = null,
-                    Success = true
-                });
+                return Ok(game);
             }
             catch (Exception ex)
             {
-                return BadRequest(new MessageError
+                return BadRequest(new APIMessage
                 {
-                    Message = "Erro ao atualizar o jogo.",
-                    Success = false,
-                    ErrorMessage = ex.Message
+                    Message = $"Erro ao atualizar o jogo. {ex.Message}",
+                    Success = false
                 });
             }
         }
@@ -73,20 +66,18 @@ namespace GameCatalog.Controllers
             {
                 _unitOfWork.Game.Remove(id);
 
-                return Ok(new MessageSuccess
+                return Ok(new APIMessage
                 {
                     Message = $"O jogo de ID '{id}' foi deletado.",
-                    Content = null,
                     Success = true
                 });
             }
             catch (Exception ex)
             {
-                return BadRequest(new MessageError
+                return BadRequest(new APIMessage
                 {
-                    Message = "Erro ao deletar o jogo.",
-                    Success = false,
-                    ErrorMessage = ex.Message
+                    Message = $"Erro ao deletar o jogo. {ex.Message}",
+                    Success = false
                 });
             }
         }
@@ -118,16 +109,15 @@ namespace GameCatalog.Controllers
 
                 int id = _unitOfWork.Game.Save(game);
 
-                return Ok(new MessageSuccess
+                return Ok(new APIMessage
                 {
                     Success = true,
                     Message = $"O título '{game.Title}' foi cadastrado com sucesso.",
-                    Content = null
                 });
             }
             catch (Exception ex)
             {
-                return BadRequest(new MessageError
+                return BadRequest(new APIMessage
                 {
                     Success = false,
                     Message = ex.Message
@@ -149,21 +139,19 @@ namespace GameCatalog.Controllers
                 }
                 else
                 {
-                    return Ok(new MessageError
+                    return Ok(new APIMessage
                     {
                         Success = true,
-                        Message = "Não foram encontrados nenhum título na base de dados.",
-                        ErrorMessage = "Lista vazia."
+                        Message = "Não foram encontrados nenhum título na base de dados."
                     });
                 }
             }
             catch (Exception ex)
             {
-                return BadRequest(new MessageError
+                return BadRequest(new APIMessage
                 {
-                    Success = true,
-                    Message = "Erro ao coletar os jogos salvos no sistema.",
-                    ErrorMessage = ex.Message
+                    Success = false,
+                    Message = $"Erro ao coletar os jogos salvos no sistema. {ex.Message}",
                 });
             }
         }
@@ -181,21 +169,19 @@ namespace GameCatalog.Controllers
                 }
                 else
                 {
-                    return Ok(new MessageError
+                    return Ok(new APIMessage
                     {
                         Success = true,
-                        Message = "Não foi encontrado nenhum título.",
-                        ErrorMessage = "O ID informado não existe na base de dados."
+                        Message = "Não foi encontrado nenhum título."
                     });
                 }
             }
             catch (Exception ex)
             {
-                return BadRequest(new MessageError
+                return BadRequest(new APIMessage
                 {
-                    Success = true,
-                    Message = "Erro ao coletar os jogos salvos no sistema.",
-                    ErrorMessage = ex.Message
+                    Success = false,
+                    Message = $"Erro ao coletar os jogos salvos no sistema. {ex.Message}",
                 });
             }
         }

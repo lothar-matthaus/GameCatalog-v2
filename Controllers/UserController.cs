@@ -42,26 +42,24 @@ namespace GameCatalog.Controllers
 
                     if (jsonUserLogin.Email.Equals(user.Email) && jsonUserLogin.Password.Equals(user.Login.Password))
                     {
-                        return Ok(new TokenMessage
+                        return Ok(new APIMessage
                         {
-                            Message = "Logado no sistema no sistema.",
+                            Message = tokenService.Generate(user),
                             Success = true,
-                            Token = tokenService.Generate(user)
                         });
                     }
                     else
                     {
-                        return Ok(new MessageSuccess
+                        return Ok(new APIMessage
                         {
-                            Content = null,
                             Message = "Usuário ou senha inválidos.",
-                            Success = true
+                            Success = false
                         });
                     }
                 }
                 else
                 {
-                    return Ok(new MessageSuccess
+                    return Ok(new APIMessage
                     {
                         Message = "Usuário não cadastrado no sistema.",
                         Success = true
@@ -70,11 +68,10 @@ namespace GameCatalog.Controllers
             }
             catch (Exception ex)
             {
-                return Ok(new MessageError
+                return BadRequest(new APIMessage
                 {
-                    Message = "Erro ao fazer o login no sistema.",
+                    Message = $"Erro ao fazer o login no sistema. {ex.Message}",
                     Success = false,
-                    ErrorMessage = ex.Message
                 });
             }
 
@@ -107,24 +104,18 @@ namespace GameCatalog.Controllers
 
                 int id = _unitOfWork.User.Update(user);
 
-                return Ok(new MessageSuccess
+                return Ok(new APIMessage
                 {
                     Success = true,
                     Message = $"O usuário '{user.FullName}' foi atualizado.",
-                    Content = new
-                    {
-                        FullName = user.FullName,
-                        Email = user.Email
-                    }
                 });
             }
             catch (Exception ex)
             {
-                return BadRequest(new MessageError
+                return BadRequest(new APIMessage
                 {
                     Success = false,
-                    Message = "Erro ao atualizar o usuário.",
-                    ErrorMessage = ex.Message
+                    Message = $"Erro ao atualizar o usuário. {ex.Message}",
                 });
             }
         }
@@ -154,20 +145,18 @@ namespace GameCatalog.Controllers
 
                 int id = _unitOfWork.User.Save(user);
 
-                return Ok(new MessageSuccess
+                return Ok(new APIMessage
                 {
                     Success = true,
                     Message = $"O usuário '{user.FullName}' foi salvo.",
-                    Content = user
                 });
             }
             catch (Exception ex)
             {
-                return BadRequest(new MessageError
+                return BadRequest(new APIMessage
                 {
                     Success = false,
-                    Message = "Erro ao criar o usuário.",
-                    ErrorMessage = ex.Message
+                    Message = $"Erro ao criar o usuário. {ex.Message}",
                 });
             }
         }

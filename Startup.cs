@@ -26,8 +26,17 @@ namespace GameCatalog
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-
             services.AddControllers();
+            services.AddCors(options =>
+            {
+                options.AddPolicy(name: "GameCatalogPolicies",
+                      policy =>
+                      {
+                          policy.AllowAnyOrigin();
+                          policy.AllowAnyHeader();
+                          policy.WithMethods("GET", "POST");
+                      });
+            });
             services.AddSwaggerGen(swagger =>
             {
                 swagger.SwaggerDoc("v1", new OpenApiInfo { Title = "GameCatalog", Version = "v1" });
@@ -56,8 +65,8 @@ namespace GameCatalog
                     ValidateAudience = true,
                     ValidateLifetime = true,
                     ValidIssuer = Configuration["JWT:Issuer"],
-					ValidAudience = Configuration["JWT:Audience"],
-                    
+                    ValidAudience = Configuration["JWT:Audience"],
+
                 };
             });
         }
@@ -72,19 +81,22 @@ namespace GameCatalog
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "GameCatalog v1"));
             }
 
+
             app.UseHttpsRedirection();
 
             app.UseRouting();
 
-            app.UseAuthentication();   
-			app.UseAuthorization();
-             
+            app.UseCors("GameCatalogPolicies");
+
+            app.UseAuthentication();
+            app.UseAuthorization();
+
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
             });
 
-            
+
         }
     }
 }
