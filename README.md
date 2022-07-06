@@ -12,7 +12,6 @@ Esta API foi desenvolvida pra a disciplina **Desenvolvimento de Software Para We
 - **Persistência** de dados de forma relacional com SQLite.
 - CORS com políticas abertas para qualquer **Origem, Header ou Credencial**.
 - Geração de bearer token por Login e Senha.
-- 
 
 # Documentação
 
