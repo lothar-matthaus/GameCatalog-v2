@@ -25,6 +25,7 @@ Propriedades:
 | Name                | string   | Título do Jogo                   | Obrigatório      |
 | Description         | string   | Descrição do título              | Obrigatório      |
 | CoverImgUrl         | string   | Imagem de capa do jogo           | Obrigatório      |
+| Genre               | int      | Gêneros do Jogo                  | Obrigatório      |
 | SlideImgUrl         | string   | Imagens de apresentação do jogo  | Obrigatório      |
 | ReleaseDate         | DateTime | Data de Lançamento do Jogo       | Obrigatório      |
 | CreationDate        | DateTime | Data que o título foi cadastrado | Opcional         |
@@ -32,49 +33,65 @@ Propriedades:
 Json de geração:
 ~~~ json
 {
-  "id": 0,
-  "name": "string",
+  "title": "string",
   "description": "string",
-  "categories": [
-    "string"
-  ],
-  "coverImgUrl": "string",
-  "slideImgUrl": [
-    "string"
-  ],
-  "releaseDate": "2021-12-13T01:31:43.851Z",
-  "creationDate": "2021-12-13T01:31:43.851Z"
+  "coverUrl": "string",
+  "releaseDate": "2022-07-12T21:03:51.688Z",
+  "genres": [
+    0
+  ]
 }
 ~~~
 ---
 Json de atualização:
 ~~~json
 {
-  "id": 1,
-  "name": "string2",
-  "description": "string2",
-  "categories": [
-    "string2"
-  ],
-  "coverImgUrl": "string2",
-  "slideImgUrl": [
-    "string2"
-  ],
-  "releaseDate": "2021-12-14T01:31:43.851Z",
-  "creationDate": "2021-12-14T01:31:43.851Z"
+  "id": 0,
+  "title": "string",
+  "description": "string",
+  "coverUrl": "string",
+  "releaseDate": "2022-07-12T21:03:23.995Z",
+  "genres": [
+    0
+  ]
+}
+~~~
+### Genre (Gênero)
+Propriedades:
+| Nome da Propriedade | Tipo     | Descrição                        |Necessidade       |
+|---------------------|----------|----------------------------------|----------------- |
+| Id                  | int      | Identificador único              | Opcional         |
+| Name                | string   | Nome do Gênero                   | Obrigatório      |
+| CreationDate        | DateTime | Data que o gênero foi cadastrado | Opcional         |
+---
+Json de geração:
+~~~json
+{
+  "name": "string"
 }
 ~~~
 ---
+Json de atualização
+~~~json
+{
+  "name": "string",
+  "id": 0
+}
+~~~
+---
+Json de Buscar uma lista de gêneros
+~~~json
+[
+  1, 5, 6
+]
+~~~
+---
 ### Rotas
-> https://localhost:5001/api/Game -- GET
+> https://localhost:5001/api/Genre -- GET/PATCH/POST
 
-> https://localhost:5001/api/Game/GetById/?id=578732 -- GET
+> https://localhost:5001/api/Genre/12 -- GET/DELETE
 
-> https://localhost:5001/api/Game -- POST
-
-> https://localhost:5001/api/Game/Update -- PATCH
-
-> https://localhost:5001/api/Game/Delete?id=578732 -- DELETE
+> https://localhost:5001/api/Genre/New/List -- POST
 ---
 ### User (Usuário)
 Propriedades:
@@ -82,6 +99,7 @@ Propriedades:
 |---------------------|--------|--------------------------------------|---------------|
 | Id                  |  int     | Identificador único                |   Opcional    |
 | Name                |  string  | Nome do usuário                    |  Obrigatório  |
+| UserRole            |  int     | Privilégio do Usuário              |  Obrigatório  |
 | Email               |  string  | E-mail de identificação do usuário |  Obrigatório  |
 | Password            |  string  | Senha de acesso do usuário         |  Obrigatório  |
 | CreationDate        | DateTime | Data de Cadastro do usuário        |   Opcional    |
@@ -89,33 +107,28 @@ Propriedades:
 Json de geração:
 ~~~json
 {
-  "id": 0,
-  "name": "string",
+  "fullName": "string",
   "email": "user@example.com",
-  "password": "string",
-  "creationDate": "2021-12-13T01:32:30.371Z"
+  "userRole": 0,
+  "password": "string"
 }
 ~~~
 ---
 Jsom de atualização
 ~~~json
 {
-  "id": 1,
-  "name": "string2",
-  "email": "user1@example.com",
-  "password": "string2",
-  "creationDate": "2022-12-13T01:32:30.371Z"
+  "id": 0,
+  "fullName": "string",
+  "email": "user@example.com",
+  "userRole": 0,
+  "password": "string"
 }
 ~~~
 ---
 ### Rotas
-> https://localhost:5001/api/User/Login -- POST
+> https://localhost:5001/api/User/SignIn -- POST
 
-> https://localhost:5001/api/User -- POST
-
-> https://localhost:5001/api/User/GetByEmail?email=user@email.com -- GET
-
-> https://localhost:5001/api/User/Update -- PATCH
+> https://localhost:5001/api/User -- POST/PATCH
 ---
 
 # Funcionamento
