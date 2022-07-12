@@ -70,6 +70,13 @@ Json de geração:
   "name": "string"
 }
 ~~~
+~~~json
+[
+  {
+    "name": "string"
+  }
+]
+~~~
 ---
 Json de atualização
 ~~~json
