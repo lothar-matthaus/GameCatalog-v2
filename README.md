@@ -1,8 +1,9 @@
 # GameCatalogV2
-API desenvolvida em ASP.NET e C#, melhorando aspectos da [GameCatalogV1](https://github.com/lothar-matthaus/gamecatalog) com as mais básicas operações CRUD (Creation, Read, Update, Delete), incluindo autenticação BEARER Token JWT e Design Patterns como Unit Of Work e Repository Pattern.
+API desenvolvida em ASP.NET e C#, melhorando aspectos da [GameCatalogV1](https://github.com/lothar-matthaus/gamecatalog) com as mais básicas operações CRUD (Creation, Read, Update, Delete), incluindo autenticação BEARER Token e Design Patterns como Unit Of Work e Repository Pattern.
 
 ## Restrições
 Esta API foi desenvolvida pra a disciplina **Desenvolvimento de Software Para Web**. Por mais que a mesma ainda possua validações básicas, pode ocorrer inconsistência dos dados caso ocorra algum problema decorrido pela falta de validações.
+
 - Impossibilidade de criar novo jogo com o mesmo ID.
 - Imposibilidade de criar um usuário com o mesmo endereço de e-mail.
 
@@ -14,6 +15,8 @@ Esta API foi desenvolvida pra a disciplina **Desenvolvimento de Software Para We
 - Geração de bearer token por Login e Senha.
 
 # Documentação
+
+A API possui integração com Swagger. As requisições poderão ser realizadas em https://localhost:5001/swagger ou utilizando uma aplicação específica para requisições (POSTMAN, INSOMNIA).
 
 ## Entidades
 
