@@ -5,6 +5,6 @@ namespace GameCatalog.Repository.Interfaces
 {
     public interface IGameRepository : IRepository<Game>
     {
-        
+        IEnumerable<Game> Get(string keyword);
     }
 }

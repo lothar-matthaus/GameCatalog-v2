@@ -156,6 +156,36 @@ namespace GameCatalog.Controllers
             }
         }
 
+        [HttpGet("Search/{keyword}")]
+        public IActionResult Get(string keyword)
+        {
+            try
+            {
+                IEnumerable<Game> gameList = _unitOfWork.Game.Get(keyword);
+
+                if (gameList != null)
+                {
+                    return Ok(gameList);
+                }
+                else
+                {
+                    return Ok(new APIMessage
+                    {
+                        Success = true,
+                        Message = "Não foi encontrado nenhum título."
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new APIMessage
+                {
+                    Success = false,
+                    Message = $"Erro ao coletar os jogos salvos no sistema. {ex.Message}",
+                });
+            }
+        }
+
         [HttpGet("{id}")]
         public IActionResult Get(int id)
         {

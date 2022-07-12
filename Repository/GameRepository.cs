@@ -70,7 +70,43 @@ namespace GameCatalog.Repository
             }
             catch (Exception)
             {
-                _dbSession.Rollback();
+                throw;
+            }
+        }
+
+        public IEnumerable<Game> Get(string keyword)
+        {
+            string sqlCommand = "";
+
+            try
+            {
+                sqlCommand = "SELECT [GA].*, [GE].* FROM Game AS [GA] " +
+                                    "INNER JOIN GameGenre AS [GG] " +
+                                        "ON [GA].GameId = [GG].GameId " +
+                                    "INNER JOIN Genre AS [GE] " +
+                                        "ON [GG].GenreId = [GE].GenreId " +
+                                    "WHERE [GA].Title LIKE @Title";
+
+                IEnumerable<Game> gameList = _dbSession.Connection.Query<Game, Genre, Game>(sqlCommand, (game, genre) =>
+                {
+                    game.Genre = new List<Genre>();
+                    game.Genre.Add(genre);
+
+                    return game;
+                }, new { Title = "%" + keyword + "%" },
+                splitOn: "GenreId");
+
+                IEnumerable<Game> result = gameList.GroupBy(game => game.GameId).Select(g =>
+                {
+                    Game groupedGameList = g.First();
+                    groupedGameList.Genre = g.Select(game => game.Genre.Single()).ToList();
+                    return groupedGameList;
+                });
+
+                return result;
+            }
+            catch (Exception)
+            {
                 throw;
             }
         }
