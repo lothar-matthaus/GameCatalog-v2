@@ -59,6 +59,11 @@ Json de atualização:
   ]
 }
 ~~~
+### Rotas
+> /api/Game -- GET/PATCH/POST
+
+> /api/Game/12 -- GET/DELETE
+---
 ### Genre (Gênero)
 Propriedades:
 | Nome da Propriedade | Tipo     | Descrição                        |Necessidade       |
@@ -97,11 +102,11 @@ Json de Buscar uma lista de gêneros
 ~~~
 ---
 ### Rotas
-> https://localhost:5001/api/Genre -- GET/PATCH/POST
+> /api/Genre -- GET/PATCH/POST
 
-> https://localhost:5001/api/Genre/12 -- GET/DELETE
+> /api/Genre/12 -- GET/DELETE
 
-> https://localhost:5001/api/Genre/New/List -- POST
+> /api/Genre/New/List -- POST
 ---
 ### User (Usuário)
 Propriedades:
@@ -136,9 +141,9 @@ Jsom de atualização
 ~~~
 ---
 ### Rotas
-> https://localhost:5001/api/User/SignIn -- POST
+> /api/User/SignIn -- POST
 
-> https://localhost:5001/api/User -- POST/PATCH
+> /api/User -- POST/PATCH
 ---
 
 # Funcionamento
