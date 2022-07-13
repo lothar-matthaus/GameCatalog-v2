@@ -139,6 +139,13 @@ Jsom de atualização
   "password": "string"
 }
 ~~~
+Json de Login
+~~~json
+{
+  "email": "user@example.com",
+  "password": "string"
+}
+~~~
 ---
 ### Rotas
 > /api/User/SignIn -- POST
@@ -151,7 +158,7 @@ O funcionamento da API é simples e direto. Há uma necessidade de se estar cada
 > Nota: Para fazer o cadastro de um usuário, deve-se utilizar o **Json de Geração** acima na rota *api/User* via método **POST**.
 
 ## Geração de Token
-Para gerar um Token de acesso, você deve realizar o Login na rota *api/User/Login* via método **POST**. Se o login for realizado com sucesso, será retornado o token de acesso.
+Para gerar um Token de acesso, você deve realizar o Login na rota */api/User/SignIn* via método **POST** utilizando o Json de Login. Se o login for realizado com sucesso, será retornado o token de acesso.
 > Nota: Os método GET são todos públicos, em suma, não há necessidade de se estar logado para poder visualizar um título ou todos os títulos.
 
 ## Create, Update e Delete
